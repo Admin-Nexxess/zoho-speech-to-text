@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech to Text</title>
+</head>
+<body>
+    <h2>Speech to Text</h2>
+    <button id="start-record-btn">Start Recognition</button>
+    <textarea id="result-text" rows="10" cols="50"></textarea>
+    
+    <script>
+        const startRecordBtn = document.getElementById('start-record-btn');
+        const resultText = document.getElementById('result-text');
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+
+        recognition.onresult = (event) => {
+            let transcript = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                transcript += event.results[i][0].transcript;
+            }
+            resultText.value = transcript;
+        };
+
+        recognition.onerror = (event) => {
+            console.error(event.error);
+        };
+
+        startRecordBtn.addEventListener('click', () => {
+            recognition.start();
+        });
+    </script>
+</body>
+</html>
