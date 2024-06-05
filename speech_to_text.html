@@ -33,14 +33,7 @@
                 }
                 resultText.value = transcript;
                 // Update the hidden field with the speech text result
-                const parentWindow = window.parent;
-                parentWindow.ZohoEmbededApp.postMessage({
-                    operation: "setFieldValue",
-                    data: {
-                        fieldName: "SpeechTextResult",
-                        value: transcript
-                    }
-                }, "*");
+                updateHiddenField(transcript);
             };
 
             recognition.onerror = (event) => {
@@ -50,6 +43,17 @@
             startRecordBtn.addEventListener('click', () => {
                 recognition.start();
             });
+
+            function updateHiddenField(text) {
+                const parentWindow = window.parent;
+                parentWindow.ZohoEmbededApp.postMessage({
+                    operation: "setFieldValue",
+                    data: {
+                        fieldName: "SpeechTextResult",
+                        value: text
+                    }
+                }, "*");
+            }
         });
     </script>
 </body>
