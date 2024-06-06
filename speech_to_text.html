@@ -58,7 +58,7 @@
 
             function submitTranscript(text) {
                 const xhr = new XMLHttpRequest();
-                xhr.open('POST', 'https://creatorapp.zoho.com/api/v2/your-zoho-creator-app-link', true);
+                xhr.open('POST', 'https://creator.zoho.com/api/v2/nexxsuite/nexxsuite/form/AI_Prompt/record', true);
                 xhr.setRequestHeader('Content-Type', 'application/json');
                 xhr.setRequestHeader('Authorization', 'Zoho-oauthtoken your-oauth-token');
                 xhr.onreadystatechange = function() {
@@ -74,7 +74,7 @@
                 };
                 const data = JSON.stringify({
                     data: {
-                        Prompt_Text: text
+                        "Prompt_Text": text  // Ensure this field name matches the form field link name
                     }
                 });
                 xhr.send(data);
