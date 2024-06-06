@@ -1,32 +1,19 @@
-// Function to trigger Zoho Creator function
-async function triggerZohoFunction(promptText) {
-  const url = "https://creator.zoho.com/api/v2/nexxsuite/nexxsuite/form/AI_Prompt/record";
-  const accessToken = "your_access_token"; // Replace with the actual access token
-  
-  const headers = {
-    "Content-Type": "application/json",
-    "Authorization": `Zoho-oauthtoken ${accessToken}`
-  };
-  
-  const body = {
-    data: [{
-      Prompt_Text: promptText
-    }]
-  };
+// Assuming you have an input field with ID 'userInput' and a button with ID 'submitButton'
+document.getElementById('submitButton').addEventListener('click', function() {
+    var userInput = document.getElementById('userInput').value;
 
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify(body)
-    });
+    // Make the API call to the Zoho Creator function
+    ZOHO.CREATOR.API.executeFunction("Speech_Functions.testAPIinvokeurl", { input_text: userInput })
+        .then(function(response) {
+            console.log(response);
+            // Handle the response as needed
+        })
+        .catch(function(error) {
+            console.error(error);
+            // Handle the error as needed
+        });
+});
 
-    const result = await response.json();
-    console.log('Data Added Successfully:', result);
-  } catch (error) {
-    console.error('Error:', error);
-  }
-}
 
 // Example usage
 const promptText = "This is a test prompt text";
