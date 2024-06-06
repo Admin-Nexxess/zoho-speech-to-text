@@ -68,9 +68,9 @@
             function submitTranscript(text) {
                 ZOHO.CREATOR.API.addRecord({
                     appName: "NexxSuite",
-                    formName: "Speech_to_Text_Records",
+                    formName: "AI_Prompt",
                     data: {
-                        Content: text
+                        "Prompt_Text": text
                     }
                 }).then(function(response) {
                     console.log("Record created successfully: ", response);
