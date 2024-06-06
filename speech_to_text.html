@@ -8,17 +8,16 @@
 <body>
     <h2>Speech to Text</h2>
     <button id="start-record-btn">Start Recognition</button>
-    <textarea id="result-text" rows="10" cols="50" style="display: none;"></textarea>
+    <textarea id="result-text" rows="10" cols="50"></textarea>
+    <button id="submit-btn">Submit</button>
     <p id="success-message" style="color: green; display: none;">Record created successfully!</p>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const startRecordBtn = document.getElementById('start-record-btn');
             const resultText = document.getElementById('result-text');
+            const submitBtn = document.getElementById('submit-btn');
             const successMessage = document.getElementById('success-message');
-
-            let silenceTimer;
-            const SILENCE_DELAY = 3000; // 3 seconds
 
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) {
@@ -32,20 +31,11 @@
             recognition.lang = 'en-US';
 
             recognition.onresult = (event) => {
-                clearTimeout(silenceTimer);
                 let transcript = '';
                 for (let i = event.resultIndex; i < event.results.length; i++) {
                     transcript += event.results[i][0].transcript;
                 }
                 resultText.value = transcript;
-                // Set the text in the Prompt Text field
-                window.parent.document.querySelector('[name="Prompt Text"]').value = transcript;
-                // Reset the silence timer
-                silenceTimer = setTimeout(() => {
-                    // Submit the form
-                    console.log('Silence detected, submitting form with transcript:', transcript);
-                    window.parent.document.forms[0].submit();
-                }, SILENCE_DELAY);
             };
 
             recognition.onerror = (event) => {
@@ -56,6 +46,31 @@
                 recognition.start();
                 console.log('Speech recognition started');
             });
+
+            submitBtn.addEventListener('click', () => {
+                const transcript = resultText.value;
+                if (transcript.trim() === '') {
+                    alert('Please provide some input before submitting.');
+                    return;
+                }
+                // Call the Zoho function to create the record
+                callZohoFunction(transcript);
+            });
+
+            function callZohoFunction(text) {
+                ZOHO.CREATOR.API.executeFunction("Speech_Functions.createSpeechTextRecord", {speechText: text})
+                    .then(function(response) {
+                        console.log("Function executed successfully: ", response);
+                        // Display the success message
+                        successMessage.style.display = 'block';
+                        setTimeout(() => {
+                            successMessage.style.display = 'none';
+                        }, 3000); // Hide the message after 3 seconds
+                    })
+                    .catch(function(error) {
+                        console.error("Error executing function: ", error);
+                    });
+            }
         });
     </script>
 </body>
