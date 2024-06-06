@@ -8,7 +8,7 @@
 <body>
     <h2>Speech to Text</h2>
     <button id="start-record-btn">Start Recognition</button>
-    <textarea id="result-text" rows="10" cols="50"></textarea>
+    <textarea id="result-text" rows="10" cols="50" style="display: none;"></textarea>
     <p id="success-message" style="color: green; display: none;">Record created successfully!</p>
     
     <script>
@@ -38,11 +38,13 @@
                     transcript += event.results[i][0].transcript;
                 }
                 resultText.value = transcript;
+                // Set the text in the Prompt Text field
+                window.parent.document.querySelector('[name="Prompt Text"]').value = transcript;
                 // Reset the silence timer
                 silenceTimer = setTimeout(() => {
-                    // Call the Zoho function to create the record
-                    console.log('Silence detected, calling Zoho function with transcript:', transcript);
-                    callZohoFunction(transcript);
+                    // Submit the form
+                    console.log('Silence detected, submitting form with transcript:', transcript);
+                    window.parent.document.forms[0].submit();
                 }, SILENCE_DELAY);
             };
 
@@ -54,21 +56,6 @@
                 recognition.start();
                 console.log('Speech recognition started');
             });
-
-            function callZohoFunction(text) {
-                ZOHO.CREATOR.API.executeFunction("Speech_Functions.createSpeechTextRecord", {speechText: text})
-                    .then(function(response) {
-                        console.log("Function executed successfully: ", response);
-                        // Display the success message
-                        successMessage.style.display = 'block';
-                        setTimeout(() => {
-                            successMessage.style.display = 'none';
-                        }, 3000); // Hide the message after 3 seconds
-                    })
-                    .catch(function(error) {
-                        console.error("Error executing function: ", error);
-                    });
-            }
         });
     </script>
 </body>
