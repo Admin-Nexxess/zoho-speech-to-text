@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const startRecordBtn = document.getElementById('start-record-btn');
+    const testBtn = document.getElementById('test-btn');
     const resultText = document.getElementById('result-text');
     const successMessage = document.getElementById('success-message');
 
@@ -32,16 +33,18 @@ document.addEventListener('DOMContentLoaded', function() {
         recognition.start();
     });
 
+    testBtn.addEventListener('click', () => {
+        const testText = resultText.value || "This is a test text";
+        callZohoFunction(testText);
+    });
+
     function callZohoFunction(text) {
         const parentWindow = window.parent;
-        parentWindow.ZOHO.CREATOR.API.executeFunction("Speech_Functions.testAPIinvokeurl", {input_text: text})
+        parentWindow.ZOHO.CREATOR.API.executeFunction("Speech_Functions.testAPIinvokeurl", { input_text: text })
             .then(function(response) {
                 console.log("Function executed successfully: ", response);
                 // Display the success message
                 successMessage.style.display = 'block';
-                setTimeout(() => {
-                    successMessage.style.display = 'none';
-                }, 3000); // Hide the message after 3 seconds
             })
             .catch(function(error) {
                 console.error("Error executing function: ", error);
