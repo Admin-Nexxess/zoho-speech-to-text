@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function callZohoFunction(text) {
         const parentWindow = window.parent;
+        const authToken = "YOUR_AUTHORIZATION_TOKEN"; // Replace with your actual authorization token
         parentWindow.ZOHO.CREATOR.API.executeFunction("Speech_Functions.testAPIinvokeurl", { input_text: text })
             .then(function(response) {
                 console.log("Function executed successfully: ", response);
