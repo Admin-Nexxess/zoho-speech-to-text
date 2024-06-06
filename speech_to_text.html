@@ -41,21 +41,22 @@
                 // Reset the silence timer
                 silenceTimer = setTimeout(() => {
                     // Call the Zoho function to create the record
+                    console.log('Silence detected, calling Zoho function with transcript:', transcript);
                     callZohoFunction(transcript);
                 }, SILENCE_DELAY);
             };
 
             recognition.onerror = (event) => {
-                console.error(event.error);
+                console.error('Recognition error:', event.error);
             };
 
             startRecordBtn.addEventListener('click', () => {
                 recognition.start();
+                console.log('Speech recognition started');
             });
 
             function callZohoFunction(text) {
-                const parentWindow = window.parent;
-                parentWindow.ZOHO.CREATOR.API.executeFunction("Speech_Functions.createSpeechTextRecord", {speechText: text})
+                ZOHO.CREATOR.API.executeFunction("Speech_Functions.createSpeechTextRecord", {speechText: text})
                     .then(function(response) {
                         console.log("Function executed successfully: ", response);
                         // Display the success message
