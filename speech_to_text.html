@@ -1,85 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Speech to Text</title>
-</head>
-<body>
-    <h2>Speech to Text</h2>
-    <button id="start-record-btn">Start Recognition</button>
-    <textarea id="result-text" rows="10" cols="50"></textarea>
-    <button id="submit-btn">Submit</button>
-    <p id="success-message" style="color: green; display: none;">Record created successfully!</p>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const startRecordBtn = document.getElementById('start-record-btn');
-            const resultText = document.getElementById('result-text');
-            const submitBtn = document.getElementById('submit-btn');
-            const successMessage = document.getElementById('success-message');
+// Function to trigger Zoho Creator function
+async function triggerZohoFunction(promptText) {
+  const url = "https://creator.zoho.com/api/v2/nexxsuite/nexxsuite/form/AI_Prompt/record";
+  const accessToken = "your_access_token"; // Replace with the actual access token
+  
+  const headers = {
+    "Content-Type": "application/json",
+    "Authorization": `Zoho-oauthtoken ${accessToken}`
+  };
+  
+  const body = {
+    data: [{
+      Prompt_Text: promptText
+    }]
+  };
 
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {
-                alert('Your browser does not support Speech Recognition.');
-                return;
-            }
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(body)
+    });
 
-            const recognition = new SpeechRecognition();
-            recognition.continuous = true;
-            recognition.interimResults = true;
-            recognition.lang = 'en-US';
+    const result = await response.json();
+    console.log('Data Added Successfully:', result);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
 
-            recognition.onresult = (event) => {
-                let transcript = '';
-                for (let i = event.resultIndex; i < event.results.length; i++) {
-                    transcript += event.results[i][0].transcript;
-                }
-                resultText.value = transcript;
-            };
-
-            recognition.onerror = (event) => {
-                console.error('Recognition error:', event.error);
-            };
-
-            startRecordBtn.addEventListener('click', () => {
-                recognition.start();
-                console.log('Speech recognition started');
-            });
-
-            submitBtn.addEventListener('click', () => {
-                const transcript = resultText.value;
-                if (transcript.trim() === '') {
-                    alert('Please provide some input before submitting.');
-                    return;
-                }
-                submitTranscript(transcript);
-            });
-
-            function submitTranscript(text) {
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', 'https://creator.zoho.com/api/v2/nexxsuite/nexxsuite/form/AI_Prompt/record', true);
-                xhr.setRequestHeader('Content-Type', 'application/json');
-                xhr.setRequestHeader('Authorization', 'Zoho-oauthtoken your-oauth-token');
-                xhr.onreadystatechange = function() {
-                    if (xhr.readyState === 4 && xhr.status === 200) {
-                        console.log('Record created successfully:', xhr.responseText);
-                        successMessage.style.display = 'block';
-                        setTimeout(() => {
-                            successMessage.style.display = 'none';
-                        }, 3000);
-                    } else if (xhr.readyState === 4) {
-                        console.error('Error creating record:', xhr.responseText);
-                    }
-                };
-                const data = JSON.stringify({
-                    data: {
-                        "Prompt_Text": text  // Ensure this field name matches the form field link name
-                    }
-                });
-                xhr.send(data);
-            }
-        });
-    </script>
-</body>
-</html>
+// Example usage
+const promptText = "This is a test prompt text";
+triggerZohoFunction(promptText);
