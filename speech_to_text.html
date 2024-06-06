@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Prompt Form with Speech to Text</title>
+    <title>Speech to Text</title>
 </head>
 <body>
-    <h2>AI Prompt Form with Speech to Text</h2>
+    <h2>Speech to Text</h2>
     <button id="start-record-btn">Start Recognition</button>
-    <br><br>
-    <div id="form-container">
-        <!-- AI Prompt form will be embedded here -->
-    </div>
+    <textarea id="result-text" rows="10" cols="50"></textarea>
+    <button id="submit-btn">Submit</button>
     <p id="success-message" style="color: green; display: none;">Record created successfully!</p>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const startRecordBtn = document.getElementById('start-record-btn');
+            const resultText = document.getElementById('result-text');
+            const submitBtn = document.getElementById('submit-btn');
             const successMessage = document.getElementById('success-message');
 
             let silenceTimer;
@@ -39,16 +39,11 @@
                 for (let i = event.resultIndex; i < event.results.length; i++) {
                     transcript += event.results[i][0].transcript;
                 }
-                // Set the text in the Prompt Text field in real time
-                const promptTextField = window.parent.document.querySelector('[name="Prompt Text"]');
-                if (promptTextField) {
-                    promptTextField.value = transcript;
-                }
+                resultText.value = transcript;
                 // Reset the silence timer
                 silenceTimer = setTimeout(() => {
-                    // Submit the form
-                    console.log('Silence detected, submitting form with transcript:', transcript);
-                    window.parent.document.forms[0].submit();
+                    console.log('Silence detected, auto-submitting transcript:', transcript);
+                    submitTranscript(transcript);
                 }, SILENCE_DELAY);
             };
 
@@ -61,21 +56,33 @@
                 console.log('Speech recognition started');
             });
 
-            // Load the AI Prompt form
-            loadAIPromptForm();
-        });
+            submitBtn.addEventListener('click', () => {
+                const transcript = resultText.value;
+                if (transcript.trim() === '') {
+                    alert('Please provide some input before submitting.');
+                    return;
+                }
+                submitTranscript(transcript);
+            });
 
-        function loadAIPromptForm() {
-            const formContainer = document.getElementById('form-container');
-            // You need to replace 'formUrl' with the actual URL to embed your AI Prompt form
-            const formUrl = 'https://creatorapp.zoho.com/nexxsuite/formbuilder/AI_Prompt/form/'; 
-            const iframe = document.createElement('iframe');
-            iframe.src = formUrl;
-            iframe.width = '100%';
-            iframe.height = '600px';
-            iframe.frameBorder = '0';
-            formContainer.appendChild(iframe);
-        }
+            function submitTranscript(text) {
+                ZOHO.CREATOR.API.addRecord({
+                    appName: "NexxSuite",
+                    formName: "Speech_to_Text_Records",
+                    data: {
+                        Content: text
+                    }
+                }).then(function(response) {
+                    console.log("Record created successfully: ", response);
+                    successMessage.style.display = 'block';
+                    setTimeout(() => {
+                        successMessage.style.display = 'none';
+                    }, 3000);
+                }).catch(function(error) {
+                    console.error("Error creating record: ", error);
+                });
+            }
+        });
     </script>
 </body>
 </html>
