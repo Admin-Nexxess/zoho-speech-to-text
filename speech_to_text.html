@@ -19,9 +19,6 @@
             const submitBtn = document.getElementById('submit-btn');
             const successMessage = document.getElementById('success-message');
 
-            let silenceTimer;
-            const SILENCE_DELAY = 3000; // 3 seconds
-
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) {
                 alert('Your browser does not support Speech Recognition.');
@@ -34,17 +31,11 @@
             recognition.lang = 'en-US';
 
             recognition.onresult = (event) => {
-                clearTimeout(silenceTimer);
                 let transcript = '';
                 for (let i = event.resultIndex; i < event.results.length; i++) {
                     transcript += event.results[i][0].transcript;
                 }
                 resultText.value = transcript;
-                // Reset the silence timer
-                silenceTimer = setTimeout(() => {
-                    console.log('Silence detected, auto-submitting transcript:', transcript);
-                    submitTranscript(transcript);
-                }, SILENCE_DELAY);
             };
 
             recognition.onerror = (event) => {
@@ -66,21 +57,27 @@
             });
 
             function submitTranscript(text) {
-                ZOHO.CREATOR.API.addRecord({
-                    appName: "NexxSuite",
-                    formName: "AI_Prompt",
-                    data: {
-                        "Prompt_Text": text
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', 'https://creatorapp.zoho.com/api/v2/your-zoho-creator-app-link', true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.setRequestHeader('Authorization', 'Zoho-oauthtoken your-oauth-token');
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        console.log('Record created successfully:', xhr.responseText);
+                        successMessage.style.display = 'block';
+                        setTimeout(() => {
+                            successMessage.style.display = 'none';
+                        }, 3000);
+                    } else if (xhr.readyState === 4) {
+                        console.error('Error creating record:', xhr.responseText);
                     }
-                }).then(function(response) {
-                    console.log("Record created successfully: ", response);
-                    successMessage.style.display = 'block';
-                    setTimeout(() => {
-                        successMessage.style.display = 'none';
-                    }, 3000);
-                }).catch(function(error) {
-                    console.error("Error creating record: ", error);
+                };
+                const data = JSON.stringify({
+                    data: {
+                        Prompt_Text: text
+                    }
                 });
+                xhr.send(data);
             }
         });
     </script>
