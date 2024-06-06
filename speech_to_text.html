@@ -69,4 +69,20 @@
                 ZOHO.CREATOR.API.addRecord({
                     appName: "NexxSuite",
                     formName: "AI_Prompt",
-                   
+                    data: {
+                        "Prompt_Text": text
+                    }
+                }).then(function(response) {
+                    console.log("Record created successfully: ", response);
+                    successMessage.style.display = 'block';
+                    setTimeout(() => {
+                        successMessage.style.display = 'none';
+                    }, 3000);
+                }).catch(function(error) {
+                    console.error("Error creating record: ", error);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
